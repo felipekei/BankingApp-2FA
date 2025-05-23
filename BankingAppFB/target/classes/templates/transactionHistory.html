@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Transaction History</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="nav-links">
+                <a th:href="@{/account/dashboard}" class="active">Home</a>
+                <a th:href="@{/about}">About</a>
+                <a th:href="@{/map}">Map</a>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-info" th:if="${username}">
+                Welcome, <span th:text="${username}">User</span>
+            </div>
+            <a th:href="@{/logout}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+        <form th:action="@{/account/filter}" method="get" class="mb-4">
+            <div class="row g-1 align-items-end">
+            
+                <!-- Start Date -->
+                <div class="col-md-1">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control">
+                </div>
+
+                <!-- End Date -->
+                <div class="col-md-1">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control">
+                </div>
+
+                <!-- Transaction Type -->
+                <div class="col-md-1">
+                    <label for="type" class="form-label">Transaction Type</label>
+                    <select id="type" name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option th:each="transactionType : ${transactionTypes}" th:value="${transactionType}" th:text="${transactionType}"></option>
+                    </select>
+                </div>
+
+                <!-- Size Dropdown -->
+                <div class="col-md-1">
+                    <label for="size" class="form-label">Results Per Page</label>
+                    <select id="size" name="size" class="form-select">
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>                
+
+                <!-- Filter Button -->
+                <div class="col-md-1 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+
+    <!-- Table with transactions -->
+    <div class="container mt-5">
+        <h2>Transaction History</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Transaction Type</th>
+                    <th>Amount</th>
+                    <th>Source/Destination</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="transaction : ${transactions}">
+                    <td th:text="${transaction.id}">1</td>
+                    <td th:text="${#temporals.format(transaction.transactionDate, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${transaction.type}">Type</td>
+                    <td th:text="${transaction.amount}"></td>
+                    <td>
+                        <!-- For TRANSFER transactions -->
+                        <span th:if="${transaction.type == 'TRANSFER'}">
+                            From: <span th:text="${transaction.sourceAccount != null ? transaction.sourceAccount.accountType : 'N/A'}"></span>
+                            To: <span th:text="${transaction.destinationAccount != null ? transaction.destinationAccount.accountType : 'N/A'}"></span>
+                        </span>              
+                        <!-- For DEPOSIT or WITHDRAWAL transactions -->
+                        <span th:if="${transaction.type != 'TRANSFER'}" th:text="${transaction.account != null ? transaction.account.accountType : 'N/A'}"></span>
+                        <!-- For BILLS -->
+                        <span th:if="${transaction.type == 'BILL_PAYMENT'}" th:text="${transaction.message}"></td>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="pagination">
+            <span>Select filters on the top left corner</span>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination d-flex justify-content-center mt-4">
+            <ul class="pagination">
+                <!-- Previous Button -->
+                <li class="page-item" th:if="${!transactions.first}">
+                    <a class="page-link" th:href="@{/account/filter(page=${transactions.number - 1}, size=${transactions.size}, startDate=${startDate}, endDate=${endDate}, type=${type})}">
+                        Previous
+                    </a>
+                </li>
+        
+                <!-- Page Numbers -->
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, transactions.totalPages - 1)}" th:classappend="${i == transactions.number ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/account/filter(page=${i}, size=${transactions.size}, startDate=${startDate}, endDate=${endDate}, type=${type})}" th:text="${i + 1}"></a>
+                </li>
+        
+                <!-- Next Button -->
+                <li class="page-item" th:if="${!transactions.last}">
+                    <a class="page-link" th:href="@{/account/filter(page=${transactions.number + 1}, size=${transactions.size}, startDate=${startDate}, endDate=${endDate}, type=${type})}">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </div>
+           
+        
+
+        <!-- Back button -->
+        <a href="/account/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

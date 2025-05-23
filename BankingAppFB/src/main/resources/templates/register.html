@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- Registration page template using Thymeleaf templating engine -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Basic page metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- Link to registration-specific styles -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Main container for registration form -->
+    <div class="container">
+        <!-- Page title -->
+        <h1>Register</h1>
+        <!-- Error message display section -->
+        <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        <!-- Registration form with Thymeleaf object binding -->
+        <form th:action="@{/register}" th:object="${user}" method="post">
+            <!-- Username input group -->
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" 
+                       id="username" 
+                       th:field="*{username}" 
+                       required 
+                       minlength="3" 
+                       maxlength="50" 
+                       pattern="[a-zA-Z0-9_-]+" 
+                       title="Username must be between 3 and 50 characters and can only contain letters, numbers, underscores and hyphens">
+                <!-- Username requirements helper text -->
+                <div class="input-requirements">
+                    Username must be 3-50 characters long and can only contain letters, numbers, underscores and hyphens
+                </div>
+            </div>
+            <!-- Email input group -->
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" 
+                       id="email" 
+                       th:field="*{email}" 
+                       required
+                       title="Please enter a valid email address">
+            </div>
+            <!-- Password input group -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" 
+                       id="password" 
+                       th:field="*{password}" 
+                       required 
+                       minlength="6"
+                       title="Password must be at least 6 characters long">
+                <!-- Password requirements helper text -->
+                <div class="input-requirements">
+                    Password must be at least 6 characters long
+                </div>
+            </div>
+            <!-- Form submission button -->
+            <button type="submit">Register</button>
+        </form>
+        <!-- Login link for existing users -->
+        <div class="login-link">
+            <p>Already have an account? <a href="/login">Login here</a></p>
+        </div>
+    </div>
+</body>
+</html> 
